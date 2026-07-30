@@ -245,7 +245,7 @@ export default function PetItemManager() {
                 <tr className="border-b border-[#E7E9EE] bg-[#FAFAFB] text-left text-[11px] uppercase tracking-wide text-[#8A93A3] dark:border-white/10 dark:bg-[#161A22] dark:text-[#6B7280]">
                   <th className="px-5 py-3 font-medium">Name</th>
                   <th className="px-5 py-3 font-medium">Class</th>
-                  <th className="px-5 py-3 font-medium">Max price</th>
+                  {/*<th className="px-5 py-3 font-medium">Max price</th>*/}
                   <th className="px-5 py-3 font-medium text-right">Copy</th>
                 </tr>
               </thead>
@@ -272,9 +272,9 @@ export default function PetItemManager() {
                             {item.class}
                           </span>
                         </td>
-                        <td className="px-5 py-3.5 font-mono text-[13px] text-[#4B5563] dark:text-[#9CA3AF]">
+                        {/* <td className="px-5 py-3.5 font-mono text-[13px] text-[#4B5563] dark:text-[#9CA3AF]">
                           {item.maxPrice}
-                        </td>
+                        </td> */}
                         <td className="px-5 py-3.5">
                           <div className="flex justify-end">
                             <IconBtn onClick={() => copyItem(item)} title="Copy">
