@@ -122,19 +122,43 @@ export default function PetItemManager() {
     if (page > totalPages) setPage(totalPages);
   }, [totalPages, page]);
 
+  // Replace the copyItem function with this:
   const copyItem = (item) => {
-    const text = `{Name = "${item.name}", Class="${item.class}", MaxPrice = "${item.maxPrice}"}`;
+    // Check if there are other items with the same name
+    const duplicates = filtered.filter(it => it.name === item.name);
+    const hasDuplicates = duplicates.length > 1;
+    
+    // If duplicates exist, include the class, otherwise omit it
+    const text = hasDuplicates 
+      ? `{Name = "${item.name}", Class="${item.class}", MaxPrice = "${item.maxPrice}"}`
+      : `{Name = "${item.name}", MaxPrice = "${item.maxPrice}"}`;
+    
     navigator.clipboard.writeText(text);
     showToast("Copied to clipboard");
   };
 
+  // Replace the copyAll function with this:
   const copyAll = () => {
+    // First, find all items that have duplicates
+    const nameCounts = {};
+    filtered.forEach(it => {
+      nameCounts[it.name] = (nameCounts[it.name] || 0) + 1;
+    });
+    
     const text = filtered
-      .map((it) => `{Name = "${it.name}", Class="${it.class}", MaxPrice = "${it.maxPrice}"}`)
+      .map((it) => {
+        const hasDuplicates = nameCounts[it.name] > 1;
+        return hasDuplicates 
+          ? `{Name = "${it.name}", Class="${it.class}", MaxPrice = "${it.maxPrice}"}`
+          : `{Name = "${it.name}", MaxPrice = "${it.maxPrice}"}`;
+      })
       .join(",\n");
+    
     navigator.clipboard.writeText(text);
     showToast(`Copied ${filtered.length} item${filtered.length === 1 ? "" : "s"}`);
   };
+
+  
 
   return (
     <>
