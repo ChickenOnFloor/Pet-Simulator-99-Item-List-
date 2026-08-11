@@ -9,8 +9,19 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
-import itemsList from './constants/itemList'
-const ITEM_LIST = itemsList;
+import itemsList from "./constants/itemList";
+import sellerItemsList from "./constants/itemSellerList";
+
+const ITEM_BASES = {
+  normal: itemsList,
+  seller: sellerItemsList,
+};
+
+const BASE_OPTIONS = [
+  { value: "normal", label: "Normal item list" },
+  { value: "seller", label: "Seller item list" },
+];
+
 const CATEGORIES = [
   "Pet",
   "Misc",
@@ -63,9 +74,26 @@ function genId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+function buildCopyText(item, baseKey, includeClass) {
+  const priceKey = baseKey === "seller" ? "Price" : "MaxPrice";
+  const priceValue = item.maxPrice ?? item.Price ?? "1m";
+
+  return includeClass
+    ? `{Name = "${item.name}", Class="${item.class}", ${priceKey} = "${priceValue}"}`
+    : `{Name = "${item.name}", ${priceKey} = "${priceValue}"}`;
+}
+
 export default function PetItemManager() {
-  
-  const [items] = useState(() => ITEM_LIST.map((it) => ({ id: genId(), ...it })));
+  const [baseKey, setBaseKey] = useState("normal");
+  const items = useMemo(() => {
+    const source = ITEM_BASES[baseKey] ?? ITEM_BASES.normal;
+    return source.map((it) => ({
+      id: genId(),
+      ...it,
+      maxPrice: it.maxPrice ?? it.Price ?? "1m",
+    }));
+  }, [baseKey]);
+
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortKey, setSortKey] = useState("name-asc");
@@ -111,49 +139,38 @@ export default function PetItemManager() {
     return list;
   }, [items, search, categoryFilter, sortKey]);
 
+  const duplicateNames = useMemo(() => {
+    const counts = {};
+    items.forEach((it) => {
+      counts[it.name] = (counts[it.name] || 0) + 1;
+    });
+    return new Set(Object.entries(counts).filter(([, count]) => count > 1).map(([name]) => name));
+  }, [items]);
+
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const pageItems = useMemo(() => {
     const start = (page - 1) * perPage;
     return filtered.slice(start, start + perPage);
   }, [filtered, page]);
 
-  useEffect(() => setPage(1), [search, categoryFilter, sortKey]);
+  useEffect(() => setPage(1), [baseKey, search, categoryFilter, sortKey]);
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
   }, [totalPages, page]);
 
-  // Replace the copyItem function with this:
   const copyItem = (item) => {
-    // Check if there are other items with the same name
-    const duplicates = filtered.filter(it => it.name === item.name);
-    const hasDuplicates = duplicates.length > 1;
-    
-    // If duplicates exist, include the class, otherwise omit it
-    const text = hasDuplicates 
-      ? `{Name = "${item.name}", Class="${item.class}", MaxPrice = "${item.maxPrice}"}`
-      : `{Name = "${item.name}", MaxPrice = "${item.maxPrice}"}`;
-    
+    const hasDuplicates = duplicateNames.has(item.name);
+    const text = buildCopyText(item, baseKey, hasDuplicates);
+
     navigator.clipboard.writeText(text);
     showToast("Copied to clipboard");
   };
 
-  // Replace the copyAll function with this:
   const copyAll = () => {
-    // First, find all items that have duplicates
-    const nameCounts = {};
-    filtered.forEach(it => {
-      nameCounts[it.name] = (nameCounts[it.name] || 0) + 1;
-    });
-    
     const text = filtered
-      .map((it) => {
-        const hasDuplicates = nameCounts[it.name] > 1;
-        return hasDuplicates 
-          ? `{Name = "${it.name}", Class="${it.class}", MaxPrice = "${it.maxPrice}"}`
-          : `{Name = "${it.name}", MaxPrice = "${it.maxPrice}"}`;
-      })
+      .map((it) => buildCopyText(it, baseKey, duplicateNames.has(it.name)))
       .join(",\n");
-    
+
     navigator.clipboard.writeText(text);
     showToast(`Copied ${filtered.length} item${filtered.length === 1 ? "" : "s"}`);
   };
@@ -208,6 +225,13 @@ export default function PetItemManager() {
                 className="w-full rounded-xl border border-[#E2E5EA] bg-white py-2.5 pl-9 pr-3 text-sm placeholder:text-[#9AA3B2] outline-none transition focus:border-[#161B22] dark:border-white/10 dark:bg-[#161A22] dark:text-[#E6E9EF] dark:placeholder:text-[#6B7280] dark:focus:border-white/30"
               />
             </div>
+
+            <SimpleSelect
+              value={baseKey}
+              onChange={setBaseKey}
+              options={BASE_OPTIONS}
+              className="sm:w-52"
+            />
 
             <SimpleSelect
               value={categoryFilter}
