@@ -1,4 +1,4 @@
-export const INITIAL_DATA = [
+const INITIAL_DATA = [
   { class: "Pet", name: "1x1x1x1", maxPrice: "1m" },
   { class: "Lootbox", name: "2023 Large Christmas Present", maxPrice: "1m" },
   { class: "Lootbox", name: "2023 Medium Christmas Present", maxPrice: "1m" },
@@ -19489,3 +19489,5 @@ export const INITIAL_DATA = [
   { class: "Pet", name: "Zucchini Zebra", maxPrice: "1m" },
   { class: "Tower", name: "Zucchini Zebra", maxPrice: "1m" }
 ]
+
+export default INITIAL_DATA;
