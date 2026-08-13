@@ -80,7 +80,7 @@ function buildCopyText(item, baseKey, includeClass) {
 
   return includeClass
     ? `{Name = "${item.name}", Class="${item.class}", ${priceKey} = "${priceValue}"}`
-    : `{Name = "${item.name}", ${priceKey} = "${priceValue}"}`;
+    : `{name = "${item.name}", ${priceKey} = "${priceValue}"}`;
 }
 
 export default function PetItemManager() {
