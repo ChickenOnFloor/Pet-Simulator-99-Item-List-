@@ -76,11 +76,12 @@ function genId() {
 
 function buildCopyText(item, baseKey, includeClass) {
   const priceKey = baseKey === "seller" ? "Price" : "MaxPrice";
+  const nameKey = baseKey === "seller" ? "name" : "Name";
   const priceValue = item.maxPrice ?? item.Price ?? "1m";
 
   return includeClass
-    ? `{Name = "${item.name}", Class="${item.class}", ${priceKey} = "${priceValue}"}`
-    : `{name = "${item.name}", ${priceKey} = "${priceValue}"}`;
+    ? `{${nameKey} = "${item.name}", Class="${item.class}", ${priceKey} = "${priceValue}"}`
+    : `{${nameKey} = "${item.name}", ${priceKey} = "${priceValue}"}`;
 }
 
 export default function PetItemManager() {
